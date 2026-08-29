@@ -54,7 +54,8 @@ fn set_time(env: &Env, ts: u64) {
 fn setup_offering() -> (Env, RevoraRevenueShareClient<'static>, Address, Address, Address) {
     let env = Env::default();
     env.mock_all_auths();
-    let client = make_client(&env);
+    let cid = env.register_contract(None, RevoraRevenueShare);
+    let client = RevoraRevenueShareClient::new(&env, &cid);
     let issuer = Address::generate(&env);
     let offering_token = Address::generate(&env);
     let (payment_token, _) = create_payment_token(&env);
