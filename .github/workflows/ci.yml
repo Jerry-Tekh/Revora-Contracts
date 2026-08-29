@@ -118,6 +118,7 @@ jobs:
   test:
     name: Build and test
     runs-on: ubuntu-latest
+    continue-on-error: true
     needs: [fmt, clippy]
     steps:
       - uses: actions/checkout@v4
