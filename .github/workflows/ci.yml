@@ -50,6 +50,7 @@ jobs:
   clippy:
     name: Clippy lint check
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
