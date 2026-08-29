@@ -77,7 +77,7 @@ fn register_offering(
 fn setup() -> (Env, RevoraRevenueShareClient<'static>, Address, Symbol, Address) {
     let env = Env::default();
     env.mock_all_auths();
-    let client = make_client(&env);
+    let client = make_client(&env.clone());
     enable_testnet(&client, &env);
     let (issuer, ns, token) = register_offering(&client, &env);
     (env, client, issuer, ns, token)
@@ -323,7 +323,7 @@ fn setup_with_admin() -> (Env, RevoraRevenueShareClient<'static>, Address, Symbo
 {
     let env = Env::default();
     env.mock_all_auths();
-    let client = make_client(&env);
+    let client = make_client(&env.clone());
     let admin = enable_testnet(&client, &env);
     let (issuer, ns, token) = register_offering(&client, &env);
     (env, client, issuer, ns, token, admin)
