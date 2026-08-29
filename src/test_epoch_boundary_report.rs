@@ -108,21 +108,21 @@ fn epoch_boundary_cutover_preserves_period_ordering() {
 
     // Report period 1 at exactly A (boundary is inclusive)
     set_time(&env, epoch_a);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     // Advance past B and reconfigure to [B+1, C] = [2001, 3000]
     set_time(&env, epoch_b + 1);
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &(epoch_b + 1), &epoch_c);
 
     // Report period 2 at B+1 (new window start)
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false);
 
     // Invariant: last reported period must be 2
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(2));
 
     // Next expected period is 3; reporting 3 must succeed (no skipped slots)
     set_time(&env, epoch_b + 2);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &300, &3, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &300, &3, &false);
 
     // Reporting 5 (skipping 4) must fail
     let r =
@@ -142,14 +142,14 @@ fn epoch_boundary_zero_width_window_allows_next_period() {
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &epoch_a, &epoch_b);
 
     set_time(&env, epoch_a);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     // Zero-width window at B+1
     set_time(&env, epoch_b + 1);
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &(epoch_b + 1), &(epoch_b + 1));
 
     // Period 2 must succeed at the exact boundary instant
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false);
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(2));
 }
 
@@ -165,13 +165,13 @@ fn epoch_boundary_overlapping_windows_preserve_ordering() {
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &epoch_a, &epoch_b);
 
     set_time(&env, epoch_a);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     // Overlapping new window: [B-1, C] = [1999, 3000]
     set_time(&env, epoch_b + 1);
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &(epoch_b - 1), &epoch_c);
 
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false);
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(2));
 }
 
@@ -187,13 +187,13 @@ fn epoch_boundary_old_period_id_rejected_after_cutover() {
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &epoch_a, &epoch_b);
 
     set_time(&env, epoch_a);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     set_time(&env, epoch_b + 1);
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &(epoch_b + 1), &epoch_c);
 
     // Re-reporting period 1 without override must be silently rejected (no state change)
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &999, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &999, &1, &false);
 
     // last_reported_period_id must still be 1
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(1));
@@ -210,14 +210,14 @@ fn epoch_boundary_zero_width_window_reset_enforces_ordering() {
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &epoch_a, &(epoch_a + 500));
 
     set_time(&env, epoch_a);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     // Reset window to zero-width [0, 0] — only T=0 is open
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &0, &0);
 
     // At T=0, report period 2
     set_time(&env, 0);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false);
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(2));
 
     // At T=1, window is closed; reporting period 3 must fail with ReportingWindowClosed
@@ -242,7 +242,7 @@ fn epoch_boundary_non_issuer_cannot_reconfigure_window() {
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &epoch_a, &epoch_b);
 
     set_time(&env, epoch_a);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     set_time(&env, epoch_b + 1);
     let r = client.try_set_report_window(
@@ -265,10 +265,10 @@ fn epoch_boundary_no_window_set_still_enforces_ordering() {
 
     // No window configured — always open
     set_time(&env, 1_000);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     set_time(&env, 2_001);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false);
 
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(2));
 
@@ -293,19 +293,19 @@ fn epoch_boundary_override_does_not_advance_period_pointer() {
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &epoch_a, &epoch_b);
 
     set_time(&env, epoch_a);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &100, &1, &false);
 
     set_time(&env, epoch_b + 1);
     client.set_report_window(&issuer, &symbol_short!("ns"), &token, &(epoch_b + 1), &epoch_c);
 
     // Override period 1
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &999, &1, &true).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &999, &1, &true);
 
     // last_reported_period_id must still be 1 — override is not a new period
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(1));
 
     // Period 2 is still the next valid sequential period
     set_time(&env, epoch_b + 2);
-    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false).unwrap();
+    client.report_revenue(&issuer, &symbol_short!("ns"), &token, &token, &200, &2, &false);
     assert_eq!(last_reported_period_id(&env, &issuer, &symbol_short!("ns"), &token), Some(2));
 }
