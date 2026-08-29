@@ -27,7 +27,7 @@ use crate::{DataKey2, RevoraError, RevoraRevenueShare, RevoraRevenueShareClient}
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, Ledger as _},
-    token, Address, Env,
+    token, Address, Env, Symbol, Vec,
 };
 
 // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -39,7 +39,7 @@ fn make_client(env: &Env) -> RevoraRevenueShareClient<'_> {
 
 fn create_payment_token(env: &Env) -> (Address, Address) {
     let admin = Address::generate(env);
-    let token_id = env.register_stellar_asset_contract(admin.clone());
+    let token_id = env.register_stellar_asset_contract_v2(admin.clone()).address();
     (token_id, admin)
 }
 
@@ -62,6 +62,8 @@ fn setup_offering() -> (Env, RevoraRevenueShareClient<'static>, Address, Address
 
     client.register_offering(
         &issuer,
+        &Vec::new(&env),
+        &1u32,
         &symbol_short!("ns"),
         &offering_token,
         &1_000,

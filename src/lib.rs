@@ -399,8 +399,6 @@ mod test_close_period;
 #[cfg(test)]
 mod test_compute_share_decomposition_prop;
 #[cfg(test)]
-mod test_compute_share_decomposition_prop;
-#[cfg(test)]
 mod test_disclosure;
 #[cfg(test)]
 mod test_faucet_metrics;
@@ -698,12 +696,6 @@ const EVENT_SNAP_FINALIZATION_CONFIG: Symbol = symbol_short!("snap_fnc");
 /// Off-chain indexers can use this event to detect and alert on oversized-proof
 /// submission attempts.  Because the check fires before any hashing, the contract
 /// incurs no additional compute cost from the malicious payload.
-const EVENT_PROOF_REJECT_DEPTH: Symbol = symbol_short!("prf_rej_d");
-const EVENT_FREEZE_OFFERING: Symbol = symbol_short!("frz_off");
-const EVENT_UNFREEZE_OFFERING: Symbol = symbol_short!("ufrz_off");
-const EVENT_PROPOSAL_CREATED: Symbol = symbol_short!("prop_new");
-const EVENT_FREEZE: Symbol = symbol_short!("freeze");
-
 // ── Governance event constants (issue #557, #559) ──
 const EVENT_GOV_PROP_CREATED: Symbol = symbol_short!("gov_new");
 const EVENT_GOV_VOTE_CAST: Symbol = symbol_short!("gov_vote");
@@ -15670,7 +15662,7 @@ impl RevoraRevenueShare {
         root: BytesN<32>,
         proof: Vec<BytesN<32>>,
     ) -> Result<bool, RevoraError> {
-        use crate::merkle_helpers::{verify_merkle_proof as merkle_verify_proof, MAX_PROOF_DEPTH};
+        use crate::merkle_helpers::verify_merkle_proof as merkle_verify_proof;
 
         // Depth-bound check with event emission on failure.
         // This mirrors the check inside `merkle_verify_proof` but also emits the
@@ -16085,13 +16077,9 @@ impl RevoraRevenueShare {
 }
 
 #[cfg(test)]
-mod test_close_period;
-#[cfg(test)]
 mod test_deferred_priority;
 #[cfg(test)]
 mod test_merkle_proof_depth;
-#[cfg(test)]
-mod test_merkle_root_rotation;
 #[cfg(test)]
 mod test_merkle_root_rotation;
 #[cfg(test)]
