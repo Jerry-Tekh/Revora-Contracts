@@ -379,6 +379,8 @@ mod test_claim_transfer_fail;
 mod test_compute_share_invariants;
 #[cfg(test)]
 mod test_duplicates;
+#[cfg(test)]
+mod test_epoch_boundary_report;
 mod test_event_indexed_v2;
 #[cfg(test)]
 mod test_event_indexed_v3;
@@ -390,6 +392,8 @@ mod test_min_revenue_threshold_boundary;
 mod test_time_windows;
 // #[cfg(test)]
 // mod test_claim_transfer_fail;
+#[cfg(test)]
+mod test_accrual_reconciliation_prop;
 #[cfg(test)]
 mod test_close_period;
 #[cfg(test)]
@@ -407,8 +411,6 @@ mod test_faucet_seed;
 mod test_quorum_check;
 #[cfg(test)]
 mod test_reg_limit_delta;
-#[cfg(test)]
-mod test_accrual_reconciliation_prop;
 #[cfg(test)]
 mod test_tax_year;
 #[cfg(test)]
@@ -8932,7 +8934,12 @@ impl RevoraRevenueShare {
             }
             if temp_total_shares == max_shares {
                 env.events().publish(
-                    (EVENT_SUPPLY_CAP_SATURATED, offering_id.issuer.clone(), offering_id.namespace.clone(), offering_id.token.clone()),
+                    (
+                        EVENT_SUPPLY_CAP_SATURATED,
+                        offering_id.issuer.clone(),
+                        offering_id.namespace.clone(),
+                        offering_id.token.clone(),
+                    ),
                     (temp_total_shares, max_shares),
                 );
             }
@@ -10978,11 +10985,7 @@ impl RevoraRevenueShare {
         let mut payouts: Vec<DistributionEntry> = Vec::new(env);
         for (bounded_bps, share_bps, holder, normalized_payout) in payout_rows {
             let _ = bounded_bps;
-            payouts.push_back(DistributionEntry {
-                holder,
-                share_bps,
-                normalized_payout,
-            });
+            payouts.push_back(DistributionEntry { holder, share_bps, normalized_payout });
         }
 
         PreflightCloseResult {
