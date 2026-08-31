@@ -397,6 +397,8 @@ mod test_time_windows;
 // #[cfg(test)]
 // mod test_claim_transfer_fail;
 #[cfg(test)]
+mod test_accrual_reconciliation_prop;
+#[cfg(test)]
 mod test_close_period;
 #[cfg(test)]
 mod test_compute_share_decomposition_prop;
@@ -413,6 +415,8 @@ mod test_quorum_check;
 mod test_compute_share_decomposition_prop;
 #[cfg(test)]
 mod test_reg_limit_delta;
+#[cfg(test)]
+mod test_tax_year;
 #[cfg(test)]
 mod test_transfer_cooldown;
 
@@ -8878,6 +8882,17 @@ impl RevoraRevenueShare {
             if temp_total_shares > max_shares {
                 return Err(RevoraError::MaxTotalSupplySharesExceeded);
             }
+            if temp_total_shares == max_shares {
+                env.events().publish(
+                    (
+                        EVENT_SUPPLY_CAP_SATURATED,
+                        offering_id.issuer.clone(),
+                        offering_id.namespace.clone(),
+                        offering_id.token.clone(),
+                    ),
+                    (temp_total_shares, max_shares),
+                );
+            }
         }
 
         // Now apply the changes
@@ -10931,11 +10946,18 @@ impl RevoraRevenueShare {
                 Self::compute_share(env.clone(), period_revenue, bounded_bps, mode);
 
             total = total.saturating_add(normalized_payout);
-            payouts.push_back(DistributionEntry {
-                holder: holder.clone(),
-                share_bps,
-                normalized_payout,
-            });
+            payout_rows.push((bounded_bps, share_bps, holder.clone(), normalized_payout));
+        }
+
+        payout_rows.sort_by(|a, b| match b.0.cmp(&a.0) {
+            core::cmp::Ordering::Equal => a.2.cmp(&b.2),
+            other => other,
+        });
+
+        let mut payouts: Vec<DistributionEntry> = Vec::new(env);
+        for (bounded_bps, share_bps, holder, normalized_payout) in payout_rows {
+            let _ = bounded_bps;
+            payouts.push_back(DistributionEntry { holder, share_bps, normalized_payout });
         }
 
         PreflightCloseResult {
